@@ -1,11 +1,10 @@
 package com.singular.renting.factory;
 
 import com.singular.renting.domain.FilmType;
-import com.singular.renting.domain.Rental;
-import com.singular.renting.service.NewReleaseInitialPaymentCalculator;
-import com.singular.renting.service.OldInitialPaymentCalculator;
-import com.singular.renting.service.RegularInitialPaymentCalculator;
-import com.singular.renting.service.RentalInitialPaymentCalculator;
+import com.singular.renting.service.calculator.NewReleaseInitialPaymentCalculator;
+import com.singular.renting.service.calculator.OldInitialPaymentCalculator;
+import com.singular.renting.service.calculator.RegularInitialPaymentCalculator;
+import com.singular.renting.service.calculator.RentalInitialPaymentCalculator;
 import org.springframework.stereotype.Component;
 
 @Component

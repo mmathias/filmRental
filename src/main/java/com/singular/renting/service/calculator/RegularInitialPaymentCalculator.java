@@ -1,7 +1,6 @@
-package com.singular.renting.service;
+package com.singular.renting.service.calculator;
 
 import com.singular.renting.domain.PriceType;
-import com.singular.renting.domain.Rental;
 
 public class RegularInitialPaymentCalculator implements RentalInitialPaymentCalculator{
 

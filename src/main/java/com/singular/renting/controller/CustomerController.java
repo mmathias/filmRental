@@ -2,9 +2,8 @@ package com.singular.renting.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import com.singular.renting.domain.Customer;
-import com.singular.renting.exception.CustomerNotFoundException;
-import com.singular.renting.repository.CustomerRepository;
 import com.singular.renting.resource.CustomerAssembler;
+import com.singular.renting.service.CustomerService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +18,17 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "customers")
 public class CustomerController {
 
-    private final CustomerRepository repository;
     private final CustomerAssembler assembler;
+    private CustomerService service;
 
-    CustomerController(CustomerRepository repository, CustomerAssembler assembler) {
-        this.repository = repository;
+    CustomerController(CustomerService service, CustomerAssembler assembler) {
+        this.service = service;
         this.assembler = assembler;
     }
 
     @GetMapping
     public CollectionModel<EntityModel<Customer>> all() {
-        List<EntityModel<Customer>> customers = repository.findAll().stream()
+        List<EntityModel<Customer>> customers = service.getAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -39,8 +38,7 @@ public class CustomerController {
 
     @GetMapping(path = "/{id}")
     public EntityModel<Customer> one(@PathVariable Long id) {
-        Customer customer = repository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+        Customer customer = service.get(id);
 
         return assembler.toModel(customer);
     }

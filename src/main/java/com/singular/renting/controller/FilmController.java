@@ -1,9 +1,8 @@
 package com.singular.renting.controller;
 
 import com.singular.renting.domain.Film;
-import com.singular.renting.exception.FilmNotFoundException;
-import com.singular.renting.repository.FilmRepository;
 import com.singular.renting.resource.FilmAssembler;
+import com.singular.renting.service.FilmService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,17 +20,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(path = "films")
 public class FilmController {
 
-    private final FilmRepository repository;
     private final FilmAssembler assembler;
+    private FilmService service;
 
-    FilmController(FilmRepository repository, FilmAssembler assembler) {
-        this.repository = repository;
+    FilmController(FilmService service, FilmAssembler assembler) {
+        this.service = service;
         this.assembler = assembler;
     }
 
     @GetMapping
     public CollectionModel<EntityModel<Film>> all() {
-        List<EntityModel<Film>> films = repository.findAll().stream()
+        List<EntityModel<Film>> films = service.getAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -41,8 +40,7 @@ public class FilmController {
 
     @GetMapping(path = "/{id}")
     public EntityModel<Film> one(@PathVariable Long id) {
-        Film film = repository.findById(id)
-                .orElseThrow(() -> new FilmNotFoundException(id));
+        Film film = service.get(id);
 
         return assembler.toModel(film);
     }

@@ -1,8 +1,7 @@
 package com.singular.renting.service;
 
-import com.singular.renting.domain.Film;
 import com.singular.renting.domain.PriceType;
-import com.singular.renting.domain.Rental;
+import com.singular.renting.service.calculator.NewReleaseInitialPaymentCalculator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
