@@ -3,7 +3,7 @@ package com.singular.renting.domain;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -13,7 +13,7 @@ public class Rental {
     private @Id @GeneratedValue Long id;
 
     private int days;
-    private Date initialDate;
+    private LocalDate initialDate;
     private Float price;
     private int daysDelayed;
     private Float surcharges;

@@ -6,14 +6,16 @@ import com.singular.renting.domain.Rental;
 import com.singular.renting.dto.RentalDTO;
 import com.singular.renting.resource.RentalAssembler;
 import com.singular.renting.service.RentalService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping(path = "rentals")
 public class RentalController {
 
     private final RentalAssembler assembler;
@@ -24,15 +26,25 @@ public class RentalController {
         this.rentalService = rentalService;
     }
 
-    @GetMapping("/rental")
-    public EntityModel<Rental> one(Long id) {
+    @GetMapping("/{id}")
+    public EntityModel<Rental> one(@PathVariable Long id) {
         Rental rental = rentalService.getRental(id);
 
         return assembler.toModel(rental);
     }
 
-    @PostMapping("/rental")
-    public ResponseEntity<EntityModel<Rental>> newRental (@RequestBody RentalDTO rentalDTO) {
+    @GetMapping
+    public CollectionModel<EntityModel<Rental>> all() {
+        List<EntityModel<Rental>> rentals = rentalService.getAll().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return new CollectionModel<>(rentals,
+                linkTo(methodOn(RentalController.class).all()).withSelfRel());
+    }
+
+    @PostMapping
+    public ResponseEntity<EntityModel<Rental>> newRental(@RequestBody RentalDTO rentalDTO) {
         Rental rental = rentalService.rent(rentalDTO);
 
         return ResponseEntity
@@ -40,9 +52,12 @@ public class RentalController {
                 .body(assembler.toModel(rental));
     }
 
-    @PostMapping("/return")
-    public ResponseEntity<EntityModel<Rental>> returnRental (@RequestBody RentalDTO rentalDTO) {
+    @PostMapping("/return/{rentalId}")
+    public ResponseEntity<EntityModel<Rental>> returnRental(@PathVariable Long rentalId) {
+        Rental rental = rentalService.returnRental(rentalId);
 
-        return null;
+        return ResponseEntity
+                .created(linkTo(methodOn(RentalController.class).one(rentalId)).toUri())
+                .body(assembler.toModel(rental));
     }
 }

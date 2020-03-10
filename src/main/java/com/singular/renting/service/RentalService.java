@@ -1,5 +1,6 @@
 package com.singular.renting.service;
 
+import ch.qos.logback.core.rolling.helper.RenameUtil;
 import com.singular.renting.domain.Customer;
 import com.singular.renting.domain.Film;
 import com.singular.renting.domain.Rental;
@@ -14,7 +15,10 @@ import com.singular.renting.repository.FilmRepository;
 import com.singular.renting.repository.RentalRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class RentalService {
@@ -51,19 +55,61 @@ public class RentalService {
         return saveRental(rentalDTO.getDays(), film, customer, rental, price);
     }
 
+    public Rental returnRental(Long rentalId) {
+        Rental rental = getRental(rentalId);
+        // it should find the film
+        // it should update the quantity
+        incrementFilmInventory(rental.getFilm());
+
+        // update surcharge and days delayed if return date is greater than start date plus days
+        updateSurchargeAndDaysDelayed(rental);
+
+        return rental;
+    }
+
+    private void updateSurchargeAndDaysDelayed(Rental rental) {
+        int daysDelayed;
+
+        LocalDate expectedReturnDate = rental.getInitialDate().plusDays(rental.getDays());
+        if (expectedReturnDate.isAfter(LocalDate.now())) {
+            daysDelayed = Period.between(LocalDate.now(), expectedReturnDate).getDays();
+            rental.setSurcharges(daysDelayed * 2f);
+            rental.setDaysDelayed(daysDelayed);
+        }
+
+        rentalRepository.save(rental);
+    }
+
+    private Film incrementFilmInventory(Film film) {
+        increaseQuantity(film);
+
+        filmRepository.save(film);
+
+        return film;
+    }
+
+    private void increaseQuantity(Film film) {
+        film.setQuantity(film.getQuantity() + 1);
+    }
+
     private Rental saveRental(int days, Film film, Customer customer, Rental rental, Float price) {
         rental.setFilm(film);
         rental.setCustomer(customer);
         rental.setPrice(price);
         rental.setDays(days);
-        rental.setInitialDate(new Date());
+        rental.setInitialDate(LocalDate.now());
 
-        return rentalRepository.save(rental);
+        rentalRepository.save(rental);
+
+        return rental;
     }
 
     private Customer getCustomerAndCalculateBonusPoints(Long customerId, int bonusPoints) {
         Customer customer = getCustomer(customerId);
         updateCustomerPoints(customer, bonusPoints);
+
+        customerRepository.save(customer);
+
         return customer;
     }
 
@@ -80,6 +126,8 @@ public class RentalService {
         Film film = getFilm(filmId);
         decreaseQuantity(film);
 
+        filmRepository.save(film);
+
         return film;
     }
 
@@ -94,11 +142,12 @@ public class RentalService {
         film.setQuantity(quantity);
     }
 
-
     public Rental getRental(Long id) {
         return rentalRepository.findById(id)
                 .orElseThrow(() -> new RentalNotFoundException(id));
     }
 
-
+    public List<Rental> getAll() {
+        return rentalRepository.findAll();
+    }
 }

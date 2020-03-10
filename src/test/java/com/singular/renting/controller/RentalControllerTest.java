@@ -27,6 +27,8 @@ public class RentalControllerTest {
     @InjectMocks
     private RentalController controller;
 
+    private static final Long RENTAL_ID = 1L;
+
     @Test
     public void isReturningANewRental() {
         RentalDTO rentalDTO = new RentalDTO();
@@ -53,28 +55,15 @@ public class RentalControllerTest {
         assertEquals(rental, rentalEntityModel.getContent());
     }
 
-
-    // return tests
     @Test
     public void itShouldHaveDaysDelayedAndSurchargesWhenRentalDelays() {
+        Rental rental = new Rental();
 
-        Rental rental;
+        when(rentalService.returnRental(RENTAL_ID)).thenReturn(rental);
+        when(assembler.toModel(rental)).thenReturn(new EntityModel<>(rental));
+        ResponseEntity<EntityModel<Rental>> rentalEntity = controller.returnRental(RENTAL_ID);
 
-        // if there is a delay we calculate the price and update surcharges and days delayed
-        // update film inventory
-
-
-
+        verify(rentalService).returnRental(RENTAL_ID);
+        assertEquals(rental,rentalEntity.getBody().getContent());
     }
-
-    @Test
-    public void itShouldHaveNoDaysDelayedAndSurchargesWhenRentalDoesntDelay() {
-
-        // if there is a delay we calculate the price and update surcharges and days delayed
-        // update film inventory
-
-
-
-    }
-
 }
