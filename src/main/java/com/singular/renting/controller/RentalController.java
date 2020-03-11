@@ -28,7 +28,7 @@ public class RentalController {
 
     @GetMapping("/{id}")
     public EntityModel<Rental> one(@PathVariable Long id) {
-        Rental rental = rentalService.getRental(id);
+        Rental rental = rentalService.get(id);
 
         return assembler.toModel(rental);
     }

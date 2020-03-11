@@ -13,11 +13,9 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -53,12 +51,12 @@ public class RentalControllerTest {
     public void itShouldReturnARentalByID() {
         Rental rental = new Rental();
         Long id = 123L;
-        when(rentalService.getRental(id)).thenReturn(rental);
+        when(rentalService.get(id)).thenReturn(rental);
         when(assembler.toModel(rental)).thenReturn(new EntityModel<>(rental));
 
         EntityModel<Rental> rentalEntityModel = controller.one(id);
 
-        verify(rentalService).getRental(id);
+        verify(rentalService).get(id);
         assertEquals(rental, rentalEntityModel.getContent());
     }
 

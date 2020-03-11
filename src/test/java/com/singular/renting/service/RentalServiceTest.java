@@ -74,7 +74,7 @@ public class RentalServiceTest {
         Rental rental = new Rental();
         when(rentalRepository.findById(RENTAL_ID)).thenReturn(Optional.of(rental));
 
-        Rental rentalOutput = service.getRental(RENTAL_ID);
+        Rental rentalOutput = service.get(RENTAL_ID);
 
         assertEquals(rental, rentalOutput);
     }
@@ -95,7 +95,7 @@ public class RentalServiceTest {
 
         RentalNotFoundException exception = assertThrows(
                 RentalNotFoundException.class,
-                () -> service.getRental(RENTAL_ID));
+                () -> service.get(RENTAL_ID));
 
         assertEquals("Couldn't find rental " + RENTAL_ID, exception.getMessage());
     }

@@ -46,7 +46,7 @@ public class RentalService {
     }
 
     public Rental returnRental(Long rentalId) {
-        Rental rental = getRental(rentalId);
+        Rental rental = get(rentalId);
         filmService.incrementFilmInventory(rental.getFilm());
 
         updateSurchargeAndDaysDelayed(rental);
@@ -67,7 +67,7 @@ public class RentalService {
         rentalRepository.save(rental);
     }
 
-    public Rental getRental(Long id) {
+    public Rental get(Long id) {
         return rentalRepository.findById(id)
                 .orElseThrow(() -> new RentalNotFoundException(id));
     }

@@ -21,7 +21,7 @@ public class CustomerController {
     private final CustomerAssembler assembler;
     private CustomerService service;
 
-    CustomerController(CustomerService service, CustomerAssembler assembler) {
+    public CustomerController(CustomerService service, CustomerAssembler assembler) {
         this.service = service;
         this.assembler = assembler;
     }
