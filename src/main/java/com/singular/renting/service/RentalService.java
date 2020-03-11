@@ -31,10 +31,8 @@ public class RentalService {
     }
 
     public Rental rent(RentalDTO rentalDTO) {
-        // get film and update inventory
         Film film = filmService.getAndUpdateInventoryFilm(rentalDTO.getFilmId());
 
-        // get customer and calculate points, update
         Customer customer = customerService.getCustomerAndCalculateBonusPoints(
                 rentalDTO.getCustomerId(),
                 film.getFilmType().getPoints());
@@ -44,7 +42,6 @@ public class RentalService {
         RentalInitialPaymentCalculator calculator = new RentalInitialPaymentCalculatorFactory().make(film.getFilmType());
         Float price = calculator.getRentalInitialPrice(rentalDTO.getDays(), film.getPriceType());
 
-        // return rental price
         return saveRental(rentalDTO.getDays(), film, customer, rental, price);
     }
 
@@ -61,13 +58,22 @@ public class RentalService {
         int daysDelayed;
 
         LocalDate expectedReturnDate = rental.getInitialDate().plusDays(rental.getDays());
-        if (expectedReturnDate.isAfter(LocalDate.now())) {
-            daysDelayed = Period.between(LocalDate.now(), expectedReturnDate).getDays();
+        if (expectedReturnDate.isBefore(LocalDate.now())) {
+            daysDelayed = Period.between(expectedReturnDate, LocalDate.now()).getDays();
             rental.setSurcharges(daysDelayed * 2f);
             rental.setDaysDelayed(daysDelayed);
         }
 
         rentalRepository.save(rental);
+    }
+
+    public Rental getRental(Long id) {
+        return rentalRepository.findById(id)
+                .orElseThrow(() -> new RentalNotFoundException(id));
+    }
+
+    public List<Rental> getAll() {
+        return rentalRepository.findAll();
     }
 
     private Rental saveRental(int days, Film film, Customer customer, Rental rental, Float price) {
@@ -80,14 +86,5 @@ public class RentalService {
         rentalRepository.save(rental);
 
         return rental;
-    }
-
-    public Rental getRental(Long id) {
-        return rentalRepository.findById(id)
-                .orElseThrow(() -> new RentalNotFoundException(id));
-    }
-
-    public List<Rental> getAll() {
-        return rentalRepository.findAll();
     }
 }

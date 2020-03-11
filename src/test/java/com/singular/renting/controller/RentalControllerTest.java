@@ -9,9 +9,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.Matchers.any;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +37,7 @@ public class RentalControllerTest {
     private static final Long RENTAL_ID = 1L;
 
     @Test
-    public void isReturningANewRental() {
+    public void itShouldReturnANewRentalWhenDTOIsCorrect() {
         RentalDTO rentalDTO = new RentalDTO();
         Rental rental = new Rental();
 
@@ -43,7 +50,7 @@ public class RentalControllerTest {
     }
 
     @Test
-    public void isFindingARental() {
+    public void itShouldReturnARentalByID() {
         Rental rental = new Rental();
         Long id = 123L;
         when(rentalService.getRental(id)).thenReturn(rental);
@@ -56,7 +63,7 @@ public class RentalControllerTest {
     }
 
     @Test
-    public void itShouldHaveDaysDelayedAndSurchargesWhenRentalDelays() {
+    public void itShouldReturnARentalWhenReturningFilm() {
         Rental rental = new Rental();
 
         when(rentalService.returnRental(RENTAL_ID)).thenReturn(rental);
@@ -65,5 +72,23 @@ public class RentalControllerTest {
 
         verify(rentalService).returnRental(RENTAL_ID);
         assertEquals(rental,rentalEntity.getBody().getContent());
+    }
+
+    @Test
+    public void itShouldReturnAListOfRentals() {
+        Rental rental = new Rental();
+        List<Rental> rentals = Collections.singletonList(rental);
+
+        when(rentalService.getAll()).thenReturn(rentals);
+        when(assembler.toModel(rental)).thenReturn(new EntityModel<>(rental));
+        CollectionModel<EntityModel<Rental>> rentalsOutput = controller.all();
+
+        verify(rentalService).getAll();
+        assertTrue(
+                rentalsOutput
+                        .getContent()
+                        .stream()
+                        .map(EntityModel::getContent)
+                        .allMatch(rental1 -> rental == rental1));
     }
 }

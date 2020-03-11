@@ -2,9 +2,7 @@ package com.singular.renting.service;
 
 import com.singular.renting.domain.*;
 import com.singular.renting.dto.RentalDTO;
-import com.singular.renting.exception.FilmNotFoundException;
-import com.singular.renting.repository.CustomerRepository;
-import com.singular.renting.repository.FilmRepository;
+import com.singular.renting.exception.RentalNotFoundException;
 import com.singular.renting.repository.RentalRepository;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
@@ -13,14 +11,14 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,11 +29,11 @@ public class RentalServiceTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
+    CustomerService customerService;
+    @Mock
+    FilmService filmService;
+    @Mock
     RentalRepository rentalRepository;
-    @Mock
-    FilmRepository filmRepository;
-    @Mock
-    CustomerRepository customerRepository;
 
     @InjectMocks
     RentalService service;
@@ -43,26 +41,20 @@ public class RentalServiceTest {
     private static final Long RENTAL_ID = 1L;
     private static final Long CUSTOMER_ID = 1L;
     private static final Long FILM_ID = 1L;
+    private static final int FILMS_AVAILABLE = 1;
+    private static final int CUSTOMER_POINTS = 1;
 
     @Test
     public void isUpdatingInventoryCalculatingPointsAndPrice() {
-        int filmsAvailable = 5;
-        int customerPoints = 35;
-
         RentalDTO rentalDTO = mockRentalDTO();
-        mockFilm(filmsAvailable);
-        mockCustomer(customerPoints);
+        Film film = mockFilm();
+        mockCustomer(film);
 
         Rental rental = service.rent(rentalDTO);
 
         assertNotNull(rental);
-
         assertNotNull(rental.getFilm());
-        assertEquals(filmsAvailable - 1, rental.getFilm().getQuantity());
-
-        // get customer and calculate points, update
         assertNotNull(rental.getCustomer());
-        assertEquals(customerPoints + 2, rental.getCustomer().getBonusPoints());
 
         // calculate price
         assertEquals(5.0f, rental.getPrice());
@@ -71,49 +63,82 @@ public class RentalServiceTest {
         assertEquals(LocalDate.now().getMonth(), rental.getInitialDate().getMonth());
         assertEquals(LocalDate.now().getYear(), rental.getInitialDate().getYear());
 
-        verify(filmRepository).save(any(Film.class));
-        verify(customerRepository).save(any(Customer.class));
+        verify(filmService).getAndUpdateInventoryFilm(anyLong());
+        verify(customerService).getCustomerAndCalculateBonusPoints(anyLong(), anyInt());
         verify(rentalRepository).save(any(Rental.class));
     }
 
     @Test
-    public void itShouldThrowAnExceptionWhenFilmNotFound() {
-        RentalDTO rentalDTO = new RentalDTO();
-        rentalDTO.setFilmId(FILM_ID);
+    public void itShouldReturnARentalIfRentalExists() {
+        Long RENTAL_ID = 1L;
+        Rental rental = new Rental();
+        when(rentalRepository.findById(RENTAL_ID)).thenReturn(Optional.of(rental));
 
-        FilmNotFoundException exception = assertThrows(
-                FilmNotFoundException.class,
-                () -> service.rent(rentalDTO));
+        Rental rentalOutput = service.getRental(RENTAL_ID);
 
-        assertEquals("Couldn't find film " + rentalDTO.getFilmId(), exception.getMessage());
+        assertEquals(rental, rentalOutput);
     }
 
-    // return tests
+    @Test
+    public void itShouldReturnAListOfRentals() {
+        List<Rental> rentals = Collections.singletonList(new Rental());
+        when(rentalRepository.findAll()).thenReturn(rentals);
+
+        List<Rental> rentalsOutput = service.getAll();
+
+        assertEquals(rentals, rentalsOutput);
+    }
+
+    @Test
+    public void itShouldReturnARentalNotFoundExceptionIfRentalDoesntExist() {
+        Long RENTAL_ID = 1L;
+
+        RentalNotFoundException exception = assertThrows(
+                RentalNotFoundException.class,
+                () -> service.getRental(RENTAL_ID));
+
+        assertEquals("Couldn't find rental " + RENTAL_ID, exception.getMessage());
+    }
+
     @Test
     public void itShouldHaveDaysDelayedAndSurchargesWhenRentalDelays() {
-        int filmsAvailable = 2;
-        RentalDTO rentalDTO = mockRentalDTO();
-        mockFilm(filmsAvailable);
+        Rental previousRental = new Rental();
+        previousRental.setInitialDate(LocalDate.now().minusDays(20));
+        previousRental.setDays(5);
+
+        when(rentalRepository.findById(RENTAL_ID)).thenReturn(java.util.Optional.of(previousRental));
 
         Rental rental = service.returnRental(RENTAL_ID);
 
-        assertEquals(filmsAvailable + 1, rental.getFilm().getQuantity());
+        assertEquals(15, rental.getDaysDelayed());
+        assertEquals(30, rental.getSurcharges());
 
-        assertEquals(12, rental.getDaysDelayed());
-        assertEquals(120, rental.getSurcharges());
+        verify(rentalRepository).save(any(Rental.class));
     }
 
     @Test
     public void itShouldHaveNoDaysDelayedAndSurchargesWhenRentalDoesntDelay() {
+        Rental previousRental = new Rental();
+        previousRental.setInitialDate(LocalDate.now().minusDays(4));
+        previousRental.setDays(15);
 
+        when(rentalRepository.findById(RENTAL_ID)).thenReturn(java.util.Optional.of(previousRental));
+
+        Rental rental = service.returnRental(RENTAL_ID);
+
+        assertEquals(0, rental.getDaysDelayed());
+        assertEquals(0, rental.getSurcharges());
+
+        verify(rentalRepository).save(any(Rental.class));
     }
 
-    private Customer mockCustomer(int customerPoints) {
+    private Customer mockCustomer(Film film) {
         Customer customer = new Customer();
         customer.setId(CUSTOMER_ID);
-        customer.setBonusPoints(customerPoints);
+        customer.setBonusPoints(CUSTOMER_POINTS);
 
-        when(customerRepository.findById(CUSTOMER_ID)).thenReturn(java.util.Optional.of(customer));
+        when(customerService.getCustomerAndCalculateBonusPoints(CUSTOMER_ID, film.getFilmType().getPoints()))
+                .thenReturn(customer);
 
         return customer;
     }
@@ -127,14 +152,14 @@ public class RentalServiceTest {
         return rentalDTO;
     }
 
-    private Film mockFilm(int filmsAvailable) {
+    private Film mockFilm() {
         Film film = new Film();
         film.setId(FILM_ID);
-        film.setQuantity(filmsAvailable);
+        film.setQuantity(FILMS_AVAILABLE);
         film.setFilmType(FilmType.NEW_RELEASE);
         film.setPriceType(PriceType.BASIC);
 
-        when(filmRepository.findById(FILM_ID)).thenReturn(java.util.Optional.of(film));
+        when(filmService.getAndUpdateInventoryFilm(FILM_ID)).thenReturn(film);
 
         return film;
     }
