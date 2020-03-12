@@ -33,6 +33,8 @@ public class RentalService {
     public Rental rent(RentalDTO rentalDTO) {
         Film film = filmService.getAndUpdateInventoryFilm(rentalDTO.getFilmId());
 
+        // talvez seja uma questao particular minha, mas me parece meio esquisito atualizar bonus nesse momento, normalmente eu o faria ao salvar
+        // tipo, o que acontece se essa transacao funciona mas o saveRental falha? basicamente o cliente ganharia o bonus sem que o filme fosse efetivamente alugado, certo?
         Customer customer = customerService.getCustomerAndCalculateBonusPoints(
                 rentalDTO.getCustomerId(),
                 film.getFilmType().getPoints());

@@ -1,5 +1,6 @@
 package com.singular.renting.dto;
 
+// pq nao usar @Data do Lombok aqui? ta inconsistente com outros POJOS
 public class RentalDTO {
 
     private Long filmId;
