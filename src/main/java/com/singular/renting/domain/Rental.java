@@ -15,11 +15,12 @@ public class Rental {
     private int days;
     private LocalDate initialDate;
     private Float price;
-    private int daysDelayed;
+    private int daysDelayed; // nao seria melhor ter um atributo LocalDate devolutionDate e derivar esses dias da comparacao das datas?
     private Float surcharges = 0f;
 
     @ManyToOne
     private Customer customer;
+
     @ManyToOne
     private Film film;
 

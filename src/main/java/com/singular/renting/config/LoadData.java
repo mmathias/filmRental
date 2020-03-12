@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LoadData {
 
-    CustomerRepository customerRepository;
-    FilmRepository filmRepository;
+    private CustomerRepository customerRepository;
+    private FilmRepository filmRepository;
 
     public LoadData(CustomerRepository customerRepository, FilmRepository filmRepository) {
         this.customerRepository = customerRepository;
@@ -22,13 +22,16 @@ public class LoadData {
     }
 
     @Bean
+    // ta esquisito isso. uma classe que usa @Configuration normalmente se usa para fazer configuracoes, nao pra fazer bootstrap de dados iniciais
     CommandLineRunner loadInitialData() {
         return args -> {
             Film film = new Film();
+
             film.setPriceType(PriceType.PREMIUM);
             film.setFilmType(FilmType.NEW_RELEASE);
             film.setQuantity(10);
             filmRepository.save(film);
+
             Customer customer = new Customer();
             customer.setBonusPoints(20);
             customerRepository.save(customer);

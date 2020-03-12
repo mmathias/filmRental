@@ -53,6 +53,7 @@ public class RentalController {
     }
 
     @PostMapping("/return/{rentalId}")
+    // pra devolver algo vc cria algo novo? usar HTTP DELETE nao seria mais intuitivo aqui?
     public ResponseEntity<EntityModel<Rental>> returnRental(@PathVariable Long rentalId) {
         Rental rental = rentalService.returnRental(rentalId);
 

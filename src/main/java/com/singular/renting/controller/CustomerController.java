@@ -27,6 +27,7 @@ public class CustomerController {
     }
 
     @GetMapping
+    // all? all o que? findAll? updateAll? o principio de Express Intent do Clean Code ficaria legal aqui :)
     public CollectionModel<EntityModel<Customer>> all() {
         List<EntityModel<Customer>> customers = service.getAll().stream()
                 .map(assembler::toModel)
@@ -37,6 +38,7 @@ public class CustomerController {
     }
 
     @GetMapping(path = "/{id}")
+    // one? findOne? updateOne?
     public EntityModel<Customer> one(@PathVariable Long id) {
         Customer customer = service.get(id);
 

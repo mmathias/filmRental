@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
+// pq nao pacotes separados pra classes de Advice e Exception?
 public class CustomerNotFoundAdvice {
 
     @ResponseBody
