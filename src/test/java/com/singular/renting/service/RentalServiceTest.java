@@ -4,10 +4,8 @@ import com.singular.renting.domain.*;
 import com.singular.renting.dto.RentalDTO;
 import com.singular.renting.exception.RentalNotFoundException;
 import com.singular.renting.repository.RentalRepository;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,9 +22,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RentalServiceTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     CustomerService customerService;

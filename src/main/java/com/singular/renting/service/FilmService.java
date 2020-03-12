@@ -20,7 +20,7 @@ public class FilmService {
 
     public Film get(Long id) {
         return filmRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+                .orElseThrow(() -> new FilmNotFoundException(id));
     }
 
     public List<Film> getAll() {
@@ -29,6 +29,14 @@ public class FilmService {
 
     public Film incrementFilmInventory(Film film) {
         increaseQuantity(film);
+        filmRepository.save(film);
+
+        return film;
+    }
+
+    public Film getAndUpdateInventoryFilm(Long filmId) {
+        Film film = get(filmId);
+        decreaseQuantity(film);
 
         filmRepository.save(film);
 
@@ -37,20 +45,6 @@ public class FilmService {
 
     private void increaseQuantity(Film film) {
         film.setQuantity(film.getQuantity() + 1);
-    }
-
-    public Film getAndUpdateInventoryFilm(Long filmId) {
-        Film film = getFilm(filmId);
-        decreaseQuantity(film);
-
-        filmRepository.save(film);
-
-        return film;
-    }
-
-    private Film getFilm(Long filmId) {
-        return filmRepository.findById(filmId)
-                .orElseThrow(() -> new FilmNotFoundException(filmId));
     }
 
     private void decreaseQuantity(Film film) {
