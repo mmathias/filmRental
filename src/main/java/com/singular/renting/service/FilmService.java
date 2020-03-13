@@ -1,7 +1,6 @@
 package com.singular.renting.service;
 
 import com.singular.renting.domain.Film;
-import com.singular.renting.exception.CustomerNotFoundException;
 import com.singular.renting.exception.FilmNotFoundException;
 import com.singular.renting.exception.NotEnoughFilmsException;
 import com.singular.renting.repository.FilmRepository;
