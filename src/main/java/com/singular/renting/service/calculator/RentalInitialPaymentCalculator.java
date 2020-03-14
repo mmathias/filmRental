@@ -2,7 +2,9 @@ package com.singular.renting.service.calculator;
 
 import com.singular.renting.domain.PriceType;
 
+import java.math.BigDecimal;
+
 public interface RentalInitialPaymentCalculator {
 
-    Float getRentalInitialPrice(int days, PriceType priceType);
+    BigDecimal getRentalInitialPrice(int days, PriceType priceType);
 }

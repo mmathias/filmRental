@@ -3,6 +3,7 @@ package com.singular.renting.domain;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -14,9 +15,9 @@ public class Rental {
 
     private int days;
     private LocalDate initialDate;
-    private Float price;
+    private BigDecimal price;
     private int daysDelayed;
-    private Float surcharges = 0f;
+    private BigDecimal surcharges = BigDecimal.ZERO;
 
     @ManyToOne
     private Customer customer;

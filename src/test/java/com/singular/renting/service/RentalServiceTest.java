@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +53,7 @@ public class RentalServiceTest {
         assertNotNull(rental.getCustomer());
 
         // calculate price
-        assertEquals(5.0f, rental.getPrice());
+        assertEquals(BigDecimal.valueOf(5.0), rental.getPrice());
         assertEquals(rentalDTO.getDays(), rental.getDays());
         assertEquals(LocalDate.now().getDayOfMonth(), rental.getInitialDate().getDayOfMonth());
         assertEquals(LocalDate.now().getMonth(), rental.getInitialDate().getMonth());
@@ -106,7 +107,7 @@ public class RentalServiceTest {
         Rental rental = service.returnRental(RENTAL_ID);
 
         assertEquals(15, rental.getDaysDelayed());
-        assertEquals(30, rental.getSurcharges());
+        assertEquals(BigDecimal.valueOf(30.0), rental.getSurcharges());
 
         verify(rentalRepository).save(any(Rental.class));
     }
@@ -122,7 +123,7 @@ public class RentalServiceTest {
         Rental rental = service.returnRental(RENTAL_ID);
 
         assertEquals(0, rental.getDaysDelayed());
-        assertEquals(0, rental.getSurcharges());
+        assertEquals(BigDecimal.ZERO, rental.getSurcharges());
 
         verify(rentalRepository).save(any(Rental.class));
     }

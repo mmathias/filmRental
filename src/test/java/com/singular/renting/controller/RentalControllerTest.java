@@ -54,7 +54,7 @@ public class RentalControllerTest {
         when(rentalService.get(id)).thenReturn(rental);
         when(assembler.toModel(rental)).thenReturn(new EntityModel<>(rental));
 
-        EntityModel<Rental> rentalEntityModel = controller.one(id);
+        EntityModel<Rental> rentalEntityModel = controller.getRental(id);
 
         verify(rentalService).get(id);
         assertEquals(rental, rentalEntityModel.getContent());
@@ -79,7 +79,7 @@ public class RentalControllerTest {
 
         when(rentalService.getAll()).thenReturn(rentals);
         when(assembler.toModel(rental)).thenReturn(new EntityModel<>(rental));
-        CollectionModel<EntityModel<Rental>> rentalsOutput = controller.all();
+        CollectionModel<EntityModel<Rental>> rentalsOutput = controller.getRentals();
 
         verify(rentalService).getAll();
         assertTrue(

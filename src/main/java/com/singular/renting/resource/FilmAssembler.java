@@ -14,7 +14,7 @@ public class FilmAssembler implements RepresentationModelAssembler<Film, EntityM
     @Override
     public EntityModel<Film> toModel(Film film) {
         return new EntityModel<Film>(film,
-                linkTo(methodOn(FilmController.class).one(film.getId())).withSelfRel(),
-                linkTo(methodOn(FilmController.class).all()).withRel("films"));
+                linkTo(methodOn(FilmController.class).getFilm(film.getId())).withSelfRel(),
+                linkTo(methodOn(FilmController.class).getFilms()).withRel("films"));
     }
 }

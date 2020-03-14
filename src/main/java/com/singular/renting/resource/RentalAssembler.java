@@ -17,8 +17,8 @@ public class RentalAssembler implements RepresentationModelAssembler<Rental, Ent
     public EntityModel<Rental> toModel(Rental rental) {
         return new EntityModel<>(
                 rental,
-                linkTo(methodOn(RentalController.class).one(rental.getId())).withSelfRel(),
-                linkTo(methodOn(FilmController.class).one(rental.getFilm().getId())).withRel("film"),
-                linkTo(methodOn(CustomerController.class).one(rental.getCustomer().getId())).withRel("customer"));
+                linkTo(methodOn(RentalController.class).getRental(rental.getId())).withSelfRel(),
+                linkTo(methodOn(FilmController.class).getFilm(rental.getFilm().getId())).withRel("film"),
+                linkTo(methodOn(CustomerController.class).getCustomer(rental.getCustomer().getId())).withRel("customer"));
     }
 }

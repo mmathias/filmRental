@@ -27,17 +27,17 @@ public class CustomerController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Customer>> all() {
+    public CollectionModel<EntityModel<Customer>> getCustomers() {
         List<EntityModel<Customer>> customers = service.getAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return new CollectionModel<>(customers,
-                linkTo(methodOn(CustomerController.class).all()).withSelfRel());
+                linkTo(methodOn(CustomerController.class).getCustomers()).withSelfRel());
     }
 
     @GetMapping(path = "/{id}")
-    public EntityModel<Customer> one(@PathVariable Long id) {
+    public EntityModel<Customer> getCustomer(@PathVariable Long id) {
         Customer customer = service.get(id);
 
         return assembler.toModel(customer);

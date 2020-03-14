@@ -27,20 +27,20 @@ public class RentalController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<Rental> one(@PathVariable Long id) {
+    public EntityModel<Rental> getRental(@PathVariable Long id) {
         Rental rental = rentalService.get(id);
 
         return assembler.toModel(rental);
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Rental>> all() {
+    public CollectionModel<EntityModel<Rental>> getRentals() {
         List<EntityModel<Rental>> rentals = rentalService.getAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return new CollectionModel<>(rentals,
-                linkTo(methodOn(RentalController.class).all()).withSelfRel());
+                linkTo(methodOn(RentalController.class).getRentals()).withSelfRel());
     }
 
     @PostMapping
@@ -48,16 +48,16 @@ public class RentalController {
         Rental rental = rentalService.rent(rentalDTO);
 
         return ResponseEntity
-                .created(linkTo(methodOn(RentalController.class).one(rental.getId())).toUri())
+                .created(linkTo(methodOn(RentalController.class).getRental(rental.getId())).toUri())
                 .body(assembler.toModel(rental));
     }
 
-    @PostMapping("/return/{rentalId}")
+    @PutMapping("/return/{rentalId}")
     public ResponseEntity<EntityModel<Rental>> returnRental(@PathVariable Long rentalId) {
         Rental rental = rentalService.returnRental(rentalId);
 
         return ResponseEntity
-                .created(linkTo(methodOn(RentalController.class).one(rentalId)).toUri())
+                .created(linkTo(methodOn(RentalController.class).getRental(rentalId)).toUri())
                 .body(assembler.toModel(rental));
     }
 }

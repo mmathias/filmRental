@@ -10,6 +10,7 @@ import com.singular.renting.repository.RentalRepository;
 import com.singular.renting.service.calculator.RentalInitialPaymentCalculator;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -40,7 +41,7 @@ public class RentalService {
         // calculate price
         Rental rental = new Rental();
         RentalInitialPaymentCalculator calculator = new RentalInitialPaymentCalculatorFactory().make(film.getFilmType());
-        Float price = calculator.getRentalInitialPrice(rentalDTO.getDays(), film.getPriceType());
+        BigDecimal price = calculator.getRentalInitialPrice(rentalDTO.getDays(), film.getPriceType());
 
         return saveRental(rentalDTO.getDays(), film, customer, rental, price);
     }
@@ -60,7 +61,7 @@ public class RentalService {
         LocalDate expectedReturnDate = rental.getInitialDate().plusDays(rental.getDays());
         if (expectedReturnDate.isBefore(LocalDate.now())) {
             daysDelayed = Period.between(expectedReturnDate, LocalDate.now()).getDays();
-            rental.setSurcharges(daysDelayed * 2f);
+            rental.setSurcharges(BigDecimal.valueOf(daysDelayed * 2f));
             rental.setDaysDelayed(daysDelayed);
         }
 
@@ -76,7 +77,7 @@ public class RentalService {
         return rentalRepository.findAll();
     }
 
-    private Rental saveRental(int days, Film film, Customer customer, Rental rental, Float price) {
+    private Rental saveRental(int days, Film film, Customer customer, Rental rental, BigDecimal price) {
         rental.setFilm(film);
         rental.setCustomer(customer);
         rental.setPrice(price);

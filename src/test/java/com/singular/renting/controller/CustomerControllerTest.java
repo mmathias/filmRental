@@ -37,7 +37,7 @@ public class CustomerControllerTest {
 
         when(service.getAll()).thenReturn(customers);
         when(assembler.toModel(customer)).thenReturn(new EntityModel<>(customer));
-        CollectionModel<EntityModel<Customer>> customersOutput = controller.all();
+        CollectionModel<EntityModel<Customer>> customersOutput = controller.getCustomers();
 
         verify(service).getAll();
         assertTrue(
@@ -55,7 +55,7 @@ public class CustomerControllerTest {
         when(service.get(id)).thenReturn(customer);
         when(assembler.toModel(customer)).thenReturn(new EntityModel<>(customer));
 
-        EntityModel<Customer> customerEntityModel = controller.one(id);
+        EntityModel<Customer> customerEntityModel = controller.getCustomer(id);
 
         verify(service).get(id);
         assertEquals(customer, customerEntityModel.getContent());

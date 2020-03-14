@@ -23,23 +23,23 @@ public class FilmController {
     private final FilmAssembler assembler;
     private FilmService service;
 
-    FilmController(FilmService service, FilmAssembler assembler) {
+    public FilmController(FilmService service, FilmAssembler assembler) {
         this.service = service;
         this.assembler = assembler;
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Film>> all() {
+    public CollectionModel<EntityModel<Film>> getFilms() {
         List<EntityModel<Film>> films = service.getAll().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
         return new CollectionModel<>(films,
-                linkTo(methodOn(FilmController.class).all()).withSelfRel());
+                linkTo(methodOn(FilmController.class).getFilms()).withSelfRel());
     }
 
     @GetMapping(path = "/{id}")
-    public EntityModel<Film> one(@PathVariable Long id) {
+    public EntityModel<Film> getFilm(@PathVariable Long id) {
         Film film = service.get(id);
 
         return assembler.toModel(film);
